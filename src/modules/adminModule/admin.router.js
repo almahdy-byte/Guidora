@@ -8,25 +8,21 @@ import * as adminServices from './admin.controller.js'
 import { asyncErrorHandler } from "../../utils/errorHandlers/asyncErrorHandler.js";
 
 const router = Router();
-
+router.use(auth());
+router.use(allowTo(Roles.ADMIN));
 
 router.post('/ban-unban-user/:userId' ,
-    auth(),
-    allowTo(Roles.ADMIN),
     validation(banOrUnBanUserValidation),
     asyncErrorHandler(adminServices.banOrUnBanUser)
 )
 
 router.post('/ban-unban-company/:companyId' ,
-    auth(),
-    allowTo(Roles.ADMIN),
     validation(banOrUnBanCompanyValidation),
     asyncErrorHandler(adminServices.banOrUnBanCompany)
 )
 
 router.patch('/approve-company/:companyId' , 
-    auth(),
-    allowTo(Roles.ADMIN),
+    
     validation(approveCompanyValidation),
     asyncErrorHandler(adminServices.approveCompany)
 )

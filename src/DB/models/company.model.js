@@ -70,9 +70,9 @@ const companySchema = new Schema({
         default:false
     }
 },{toJSON:{virtuals : true} , toObject:{virtuals:true}})
-companySchema.virtual('Jobs' ,{
+companySchema.virtual('Offers' ,{
     localField:'_id',
     foreignField:'companyId',
-    ref:'Jobs'
+    ref:'Offers'
 })
 export const companyModel = model('Company' , companySchema)
