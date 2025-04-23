@@ -6,7 +6,7 @@ export const createCompanyValidationSchema = Joi.object({
     description : generalValidation.description.required(),
     companyEmail : generalValidation.companyEmail.required(),
     numberOfEmployees:generalValidation.numberOfEmployees.required(),
-    industry:generalValidation.industry.required(),
+
     companyEmail : generalValidation.companyEmail.required(),
     HRs:generalValidation.HRs,
     address:generalValidation.address.required()
@@ -18,7 +18,6 @@ export const updateCompanyValidationSchema = Joi.object({
     description : generalValidation.description,
     companyEmail : generalValidation.companyEmail,
     numberOfEmployees:generalValidation.numberOfEmployees,
-    industry:generalValidation.industry,
     companyEmail : generalValidation.companyEmail,
     address:generalValidation.address,
     HRs:generalValidation.HRs
