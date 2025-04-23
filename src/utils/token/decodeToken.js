@@ -2,20 +2,21 @@ import { StatusCodes } from "http-status-codes";
 import { userModel } from "../../DB/models/user.model.js";
 import { verify } from "./verify.js";
 import { Roles, tokenTypes } from "../globalEnums/enums.js";
+import AppError from "../errorHandlers/appError.js";
 
 export const decodeToken = async(authorization , tokenType =tokenTypes.ACCESS  ,next)=>{
         if(!authorization)
-            return next(new Error('please send authorization' , {cause:StatusCodes.BAD_REQUEST}));
+            return next(new AppError('please send authorization' ,StatusCodes.BAD_REQUEST));
 
         const parts = authorization.split(" ");
         if(parts.length !==2)
-            return next(new Error('in-valid authorization' , {cause:StatusCodes.BAD_REQUEST}));
+            return next(new AppError('in-valid authorization' ,StatusCodes.BAD_REQUEST));
         const [barer, token] = parts;
         if (!barer || !token) 
-            return next(new Error('please send token'));
+            return next(new AppError('please send token'));
         
         if(!Object.values(Roles).includes(barer))
-            return next(new Error('in-valid barer key' , {cause:StatusCodes.BAD_REQUEST}));
+            return next(new AppError('in-valid barer key' ,StatusCodes.BAD_REQUEST));
 
         let accessSignature
         let refreshSignature
@@ -34,7 +35,7 @@ export const decodeToken = async(authorization , tokenType =tokenTypes.ACCESS  ,
         
         let signature = tokenType == tokenTypes.ACCESS ? accessSignature : refreshSignature;
         if (!signature) 
-            return next(new Error('Token signature is missing'));
+            return next(new AppError('Token signature is missing'));
         
         try {
             
@@ -48,28 +49,28 @@ export const decodeToken = async(authorization , tokenType =tokenTypes.ACCESS  ,
             });
             
             if (!user) 
-                return next(new Error('Invalid token'));
+                return next(new AppError('Invalid token'));
             return { user  , accessSignature};
         } catch (error) {
-            return next(new Error('Token verification failed'));
+            return next(new AppError('Token verification failed'));
         }
     };
 
     export const decodeTokenGraphQl = async(authorization , tokenType =tokenTypes.ACCESS )=>{
         
         if(!authorization)
-            throw new Error('please send authorization' , {cause:StatusCodes.BAD_REQUEST});
+            throw new AppError('please send authorization' ,StatusCodes.BAD_REQUEST);
         
         const parts = authorization.split(" ");
         if(parts.length !==2)
-            throw new Error('in-valid authorization' , {cause:StatusCodes.BAD_REQUEST});
+            throw new AppError('in-valid authorization' ,StatusCodes.BAD_REQUEST);
         
         const [barer, token] = parts;
         if (!barer || !token) 
-            throw new Error('please send token');
+            throw new AppError('please send token');
         
         if(!Object.values(Roles).includes(barer))
-            throw new Error('in-valid barer key' , {cause:StatusCodes.BAD_REQUEST});
+            throw new AppError('in-valid barer key' ,StatusCodes.BAD_REQUEST);
 
         let accessSignature
         let refreshSignature
@@ -88,7 +89,7 @@ export const decodeToken = async(authorization , tokenType =tokenTypes.ACCESS  ,
 
         let signature = tokenType == tokenTypes.ACCESS ? accessSignature : refreshSignature;
         if (!signature) 
-            throw new Error('Token signature is missing');
+            throw new AppError('Token signature is missing');
         
         try {
             const decoded = await verify(token , signature);            
@@ -100,11 +101,11 @@ export const decodeToken = async(authorization , tokenType =tokenTypes.ACCESS  ,
                 deletedAt:null
             });
             if (!user) 
-                throw new Error('Invalid token');
+                throw new AppError('Invalid token');
 
             return { user, accessSignature };
             
         } catch (error) {
-            throw new Error('Token verification failed');
+            throw new AppError('Token verification failed');
         }
     };

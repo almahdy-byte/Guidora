@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { userModel } from "../../DB/models/user.model.js";
 import { companyModel } from "../../DB/models/company.model.js";
+import AppError from "../../utils/errorHandlers/appError.js";
 
 // ban or unban user        
 export const banOrUnBanUser =async(req , res , next)=>{
@@ -12,7 +13,7 @@ export const banOrUnBanUser =async(req , res , next)=>{
         deletedAt : null , 
     })
     // check if the target user is not found
-    if(!targetUser) return next(new Error('user not found' , {cause:StatusCodes.NOT_FOUND}));
+    if(!targetUser) return next(new AppError('user not found' , StatusCodes.NOT_FOUND));
     // check if the target user is banned
     if(!targetUser.bannedAt){
         // update target user bannedBy to user._id
@@ -40,7 +41,7 @@ export const banOrUnBanCompany =async(req , res , next)=>{
     })
     
     if(!targetCompany) 
-        return next(new Error('company not found' , {cause:StatusCodes.NOT_FOUND}));
+        return next(new AppError('company not found' , StatusCodes.NOT_FOUND));
     // check if the target company is banned
     if(!targetCompany.bannedAt){
         // update target company bannedAt to current date
@@ -64,10 +65,10 @@ export const approveCompany = async(req , res , next)=>{
     })
     // check if the target company is not found
     if(!company)
-        return next(new Error('company not found' , {cause:StatusCodes.NOT_FOUND}));
+        return next(new AppError('company not found' , StatusCodes.NOT_FOUND));
     // check if the target company is already approved
     if(company.approvedByAdmin) 
-        return next(new Error('company already approved' , {cause:StatusCodes.BAD_REQUEST}));
+        return next(new AppError('company already approved' , StatusCodes.BAD_REQUEST));
     // update target company approvedByAdmin to true
     company.approvedByAdmin = true;
     // save target company

@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { Gender, JobLocation, Roles, WorkingTime } from "../utils/globalEnums/enums.js";
 import { asyncErrorHandler } from "../utils/errorHandlers/asyncErrorHandler.js";
 import { Types } from "mongoose";
+import AppError from "../utils/errorHandlers/appError.js";
 
 export const validation = (schema)=>{
     return (req,res,next)=>{
@@ -16,7 +17,7 @@ export const validation = (schema)=>{
         let errors = [];
         if(result.error){
             errors.push(result.error.details[0].message)
-            return next(new Error(errors) , {cause:StatusCodes.BAD_REQUEST})  
+            return next(new AppError(errors, StatusCodes.BAD_REQUEST))  
         }
         next();
 }

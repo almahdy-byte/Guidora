@@ -4,6 +4,7 @@ import { compare } from "../../utils/hash/compare.js";
 import { hash } from "../../utils/hash/hash.js";
 import cloudinary from "../../utils/multer/cloudinary.js";
 import { Roles } from "../../utils/globalEnums/enums.js";
+import AppError from "../../utils/errorHandlers/appError.js";
 
 // update user
 export const updateUser = async (req, res, next) => {
@@ -13,7 +14,7 @@ export const updateUser = async (req, res, next) => {
     // Check if at least one allowed field is present in req.body
     const hasValidField = allowedFields.some(field => req.body[field] !== undefined);
     if (!hasValidField) {
-        return next(new Error('No data to update', { cause: StatusCodes.BAD_REQUEST }));
+        return next(new AppError('No data to update', StatusCodes.BAD_REQUEST));
     }
 
     // Update only the fields that are present in req.body
@@ -43,7 +44,7 @@ export const getUser = async(req , res ,next)=>{
     const { userId } = req.params;
 
     // check if the userId is not found
-    if(!userId) return next(new Error('userId not found' , {cause:StatusCodes.NOT_FOUND}));
+    if(!userId) return next(new AppError('userId not found' , StatusCodes.NOT_FOUND));
 
     let user;
 
@@ -57,7 +58,7 @@ export const getUser = async(req , res ,next)=>{
     }
 
     // check if the user is not found
-    if(!user) return next(new Error('user not found' , {cause:StatusCodes.NOT_FOUND}));
+    if(!user) return next(new AppError('user not found' , StatusCodes.NOT_FOUND));
 
     // get user data
     const {userName , profilePic , coverPic , phone} = user;
@@ -79,7 +80,7 @@ export const upDatePassword = async(req , res ,next)=>{
     const { oldPassword , newPassword } = req.body;
 
     // check if the old password is incorrect
-    if(!compare(oldPassword , user.password)) return next(new Error('in-correct old password' , {cause:StatusCodes.BAD_REQUEST}));
+    if(!compare(oldPassword , user.password)) return next(new AppError('in-correct old password' , StatusCodes.BAD_REQUEST));
 
     // update user password
     user.password = hash(newPassword);
@@ -98,7 +99,7 @@ export const uploadProfilePic = async(req , res ,next) => {
 
     // check if the file is not found
     if (!file) {
-        return next(new Error('image is required', { cause: StatusCodes.BAD_REQUEST }));
+        return next(new AppError('image is required', StatusCodes.BAD_REQUEST));
     }
 
     // upload profile picture to cloudinary
@@ -120,7 +121,7 @@ export const uploadCovePic = async(req , res ,next)=>{
 
     // check if the file is not found
     if (!file) {
-        return next(new Error('image is required', { cause: StatusCodes.BAD_REQUEST }));
+        return next(new AppError('image is required', StatusCodes.BAD_REQUEST));
     }
 
     // upload cover picture to cloudinary   
@@ -141,7 +142,7 @@ export const deleteProfilePic = async(req , res ,next)=>{
     
     // check if the profile picture is not found
     if(!Object.values(user.profilePic).length)
-         return next(new Error('profile picture not found' ,{cause:StatusCodes.NOT_FOUND}));
+         return next(new AppError('profile picture not found' ,StatusCodes.NOT_FOUND));
     
     // delete profile picture from cloudinary
     await cloudinary.uploader.destroy(user.profilePic.public_id);
@@ -162,7 +163,7 @@ export const deleteCoverPic = async(req , res ,next)=>{
 
     // check if the cover picture is not found
     if(!Object.values(user.coverPic).length) 
-        return next(new Error('profile picture not found' ,{cause:StatusCodes.NOT_FOUND}));
+        return next(new AppError('profile picture not found' ,StatusCodes.NOT_FOUND));
 
     // delete cover picture from cloudinary
     await cloudinary.uploader.destroy(user.coverPic.public_id);
@@ -184,7 +185,7 @@ export const softDelete = async(req , res , next)=>{
 
     // check if the user is not allowed to delete the target user
     if(userId.toString() !== user._id.toString() && user.role !== Roles.ADMIN)
-        return next(new Error('you are not allowed to delete this user'));
+        return next(new AppError('you are not allowed to delete this user'));
 
     const targetUser = await userModel.findOne({
         _id : userId,
@@ -194,7 +195,7 @@ export const softDelete = async(req , res , next)=>{
 
     // check if the target user is not found
     if(!targetUser) 
-        return next(new Error('user not found' , {cause:StatusCodes.NOT_FOUND}));
+        return next(new AppError('user not found' , StatusCodes.NOT_FOUND));
 
     // update target user Info
     targetUser.isDeleted = true ;;

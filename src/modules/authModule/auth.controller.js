@@ -11,6 +11,7 @@ import { OTPTypes, Providers, subjects, tokenTypes } from "../../utils/globalEnu
 import { compare } from "../../utils/hash/compare.js";
 import { compareOTP } from "./helpers/compareOTP.js";
 import { verifyGoogleToken } from "./helpers/verifyGoogleToken.js";
+import AppError from "../../utils/errorHandlers/appError.js";
 
 
 
@@ -20,7 +21,7 @@ export const register = async(req , res , next)=>{
     // check if the user is already exist
     const isExist = await userModel.findOne({email});
     if(isExist) 
-        return next(new Error('Email already exist' , {cause:StatusCodes.BAD_REQUEST}));
+        return next(new AppError('Email already exist' , StatusCodes.BAD_REQUEST));
     // generate confirm email OTP
     const confirmEmailOTP =await code();
     // generate confirm email html
@@ -51,14 +52,14 @@ export const confirmEmail = async(req , res ,next)=>{
     // check if the user is already exist
     const user = await userModel.findOne({email});
     if(!user) 
-         return next(new Error('user not found' , {cause:StatusCodes.NOT_FOUND}));
+         return next(new AppError('user not found' , StatusCodes.NOT_FOUND));
     // get confirm email OTP
     const confirmEmailOTP = user.OTP.filter(otp => otp.OTPType === OTPTypes.CONFIRM_EMAIL) ;
     // check if the OTP is not found
-    if(!confirmEmailOTP.length) next(new Error('OTP not found' , {cause:StatusCodes.NOT_FOUND}));
+    if(!confirmEmailOTP.length) next(new AppError('OTP not found' , StatusCodes.NOT_FOUND));
     // check if the OTP is incorrect
     if(!compareOTP(code , confirmEmailOTP))
-        return next(new Error('in-correct code' , {cause:StatusCodes.BAD_REQUEST}));
+        return next(new AppError('in-correct code' , StatusCodes.BAD_REQUEST));
     // update user isConfirmed to true
     user.isConfirmed = true;
     // remove confirm email OTP
@@ -75,10 +76,10 @@ export const logIn = async(req , res , next)=>{
     const user = await userModel.findOne({email , isConfirmed:true , provider : Providers.SYSTEM , isDeleted : false , deletedAt : null});
     // check if the user is not found
     if(!user) 
-        return next(new Error('user not found' , {cause:StatusCodes.NOT_FOUND}));
+        return next(new AppError('user not found' , StatusCodes.NOT_FOUND));
     // check if the password is incorrect
     if(!compare( password , user.password))
-        return next(new Error('in-correct email or password' , {cause:StatusCodes.BAD_REQUEST}));  
+        return next(new AppError('in-correct email or password' , StatusCodes.BAD_REQUEST));  
     // create access token and refresh token
     const {accessToken , refreshToken} = await createToken(user.role , {id : user._id ,changeCredentialTime : user.changeCredentialTime});
     return res.status(StatusCodes.ACCEPTED).json({success:true,accessToken , refreshToken})
@@ -89,7 +90,7 @@ export const refreshToken =async(req , res, next)=>{
     const {refreshToken} = req.body;   
     const decodedData = await decodeToken(refreshToken , tokenTypes.REFRESH , next);
     if (!decodedData || !decodedData.user) {
-        return next(new Error("Invalid refresh token", { cause: StatusCodes.UNAUTHORIZED }));
+        return next(new AppError("Invalid refresh token", { cause: StatusCodes.UNAUTHORIZED }));
     }
     const {user , accessSignature} = decodedData
     const accessToken = await sign({id : user._id , changeCredentialTime : user.changeCredentialTime} , accessSignature)
@@ -121,10 +122,10 @@ export const changePassword = async(req , res ,next)=>{
     const user = req.user;
     const resetPasswordOTP = user.OTP.filter(otp => otp.OTPType === OTPTypes.FORGET_PASSWORD);
     if(!resetPasswordOTP.length)
-         return next(new Error('OTP not found' , {cause:StatusCodes.NOT_FOUND}));
+         return next(new AppError('OTP not found' , StatusCodes.NOT_FOUND));
     // check if the OTP is incorrect
     if(!compareOTP(code , resetPasswordOTP ))
-        return next(new Error('in-correct code' , {cause:StatusCodes.BAD_REQUEST}));
+        return next(new AppError('in-correct code' , StatusCodes.BAD_REQUEST));
     // update user password
     user.password = hash(password);
     // remove reset password OTP
@@ -143,14 +144,14 @@ export const socialLogin = async(req , res , next)=>{
     console.log({payload});
     // check if the email is not verified
     if(!payload.email_verified) 
-        return next(new Error('email not verified' , {cause:StatusCodes.BAD_REQUEST}));
+        return next(new AppError('email not verified' , StatusCodes.BAD_REQUEST));
     // check if the user is already exist
     let user = await userModel.findOne({
         email:payload.email
     });
     // check if the user is already exist and the provider is system
     if(user?.provider === Providers.SYSTEM)
-        return next(new Error('you should login with the system' , {cause:StatusCodes.BAD_REQUEST}));
+        return next(new AppError('you should login with the system' , StatusCodes.BAD_REQUEST));
     // check if the user is not exist
     if(!user){
         user = await userModel.create({

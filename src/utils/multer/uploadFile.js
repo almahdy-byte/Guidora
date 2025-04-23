@@ -2,7 +2,8 @@ import { StatusCodes } from "http-status-codes";
 import multer from "multer";
 import { nanoid } from "nanoid";
 import path from 'path';
-import fs from 'fs'
+import fs from 'fs';
+import AppError from "../errorHandlers/appError.js";
 
 
 export const uploadFile = (type ) => {    
@@ -12,7 +13,7 @@ export const uploadFile = (type ) => {
         if(type.includes(file.mimetype)){
             return cb(null , true)
         }
-        return cb(new Error('invalid type' ,{cause:StatusCodes.BAD_REQUEST}) , false);
+        return cb(new AppError('invalid type' ,StatusCodes.BAD_REQUEST) , false);
     }
 
     const upload = multer({ storage , fileFilter });    
