@@ -6,43 +6,52 @@ import { asyncErrorHandler } from "../../utils/errorHandlers/asyncErrorHandler.j
 import * as userServices from './user.controller.js';
 import { uploadFile } from "../../utils/multer/uploadFile.js";
 import { FileType } from "../../utils/globalEnums/enums.js";
+
 const router = Router();
+
+router.use( auth() );
+
 router.route('/')
     .get(
-    auth() , 
-    asyncErrorHandler(userServices.getProfile))
+        asyncErrorHandler(userServices.getProfile)
+    )
     .patch(
-    auth() , 
-    validation(updateUserValidationSchema) , 
-    asyncErrorHandler(userServices.updateUser))
-router.delete('/:userId' ,
-    auth(),
-    validation(getAndDeleteUserValidationSchema),
-    asyncErrorHandler(userServices.softDelete))
-router.get('/:userId' , 
-    auth() ,
-    validation(getAndDeleteUserValidationSchema),
-    asyncErrorHandler(userServices.getUser))
-router.patch('/update-password' ,
-    auth() , 
-    validation(updatePasswordValidationSchema) , 
-    asyncErrorHandler(userServices.upDatePassword))
-router.post('/upload-profilePic' , 
-    auth(),
-    uploadFile(FileType.IMAGE).single("image"),
-    asyncErrorHandler(userServices.uploadProfilePic)
-)
-router.post('/upload-coverPic' , 
-    auth(),
-    uploadFile(FileType.IMAGE).single("image"),
-    asyncErrorHandler(userServices.uploadCovePic)
-)
-router.delete('/delete-profilePic' , 
-    auth(),
-    asyncErrorHandler(userServices.deleteProfilePic)
-)
-router.delete('/delete-coverPic' , 
-    auth(),
-    asyncErrorHandler(userServices.deleteCoverPic)
-)
+        validation(updateUserValidationSchema) , 
+        asyncErrorHandler(userServices.updateUser)
+    )
+    
+router
+    .patch('/update-password' ,
+        validation(updatePasswordValidationSchema) , 
+        asyncErrorHandler(userServices.upDatePassword)
+    );
+
+router.route('profilePic')
+    .post(
+        uploadFile(FileType.IMAGE).single("image"),
+        asyncErrorHandler(userServices.uploadProfilePic)
+    )
+    .delete(
+        asyncErrorHandler(userServices.deleteProfilePic)
+    );
+
+router.route('coverPic')
+    .post(
+        uploadFile(FileType.IMAGE).single("image"),
+        asyncErrorHandler(userServices.uploadCovePic)
+    )
+    .delete(
+        asyncErrorHandler(userServices.deleteCoverPic)
+    );
+
+router.route('/:userId')
+    .get(
+        validation(getAndDeleteUserValidationSchema),
+        asyncErrorHandler(userServices.getUser)
+    )
+    .delete(
+        validation(getAndDeleteUserValidationSchema),
+        asyncErrorHandler(userServices.softDelete)
+    );
+
 export default router;
