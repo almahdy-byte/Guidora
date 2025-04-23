@@ -8,7 +8,8 @@ import { DBConnection } from './DB/connection.js';
 import authRouter from './modules/authModule/auth.router.js';
 import userRouter from './modules/userModule/user.router.js';
 import companyRouter from './modules/companyModule/company.router.js';
-
+import offerRouter from './modules/offerModule/offer.router.js';
+import { globalErrorHandler } from './utils/errorHandlers/globalErrorHandler.js';
 
 export const bootstrap = async (app ,express) => {
     app.use(express.json());
@@ -39,4 +40,9 @@ export const bootstrap = async (app ,express) => {
     app.use('/auth' , authRouter);
     app.use('/user' , userRouter);
     app.use('/company' , companyRouter);
+    app.use('/offer' , offerRouter);
+    app.use('/*' , (req , res , next)=>{
+        return next(new Error('page not found' , {cause : StatusCodes.NOT_FOUND}))
+    });
+    app.use(globalErrorHandler);
 }

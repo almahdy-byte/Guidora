@@ -18,9 +18,7 @@ export const addOffer = async(req , res , next)=>{
 export const getOffers = async(req , res , next)=>{
     let filter = {}
     if(req.params.companyId)
-         filter={
-        companyId :req.params.companyId
-    }
+         filter['companyId'] = req.params.companyId
     const offers = await offerModel.find(filter);
     if(!offers.length)
         return next(new Error('no offers found' , {cause : StatusCodes.NOT_FOUND}));

@@ -33,7 +33,11 @@ const offerSchema = new Schema({
     bookedBy:[{
         type:Types.ObjectId,
         ref:'User'
-    }]
+    }] , 
+    isDeleted:{
+        type:Boolean,
+        default:false
+    }
 } , {timestamps:true})
 
 export const offerModel = model('Offers' , offerSchema);

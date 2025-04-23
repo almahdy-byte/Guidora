@@ -2,7 +2,8 @@ import { StatusCodes } from "http-status-codes";
 import { companyModel } from "../DB/models/company.model.js";
 import { asyncErrorHandler } from "../utils/errorHandlers/asyncErrorHandler.js"
 
-export const getCompanyById = asyncErrorHandler(async(req , res , next)=>{
+export const getCompanyById = ()=>{
+    return asyncErrorHandler(async(req , res , next)=>{
         const {companyId} = req.params;
         const company = await companyModel.findOne({
             _id:companyId , deletedAt:null , bannedAt : null
@@ -13,3 +14,4 @@ export const getCompanyById = asyncErrorHandler(async(req , res , next)=>{
         next()
     }
     )
+}
