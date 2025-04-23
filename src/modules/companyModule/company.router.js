@@ -6,7 +6,7 @@ import { uploadFile } from "../../utils/multer/uploadFile.js";
 import * as companyServices from './company.controller.js'
 import { companyIdValidationSchema, createCompanyValidationSchema, downloadExcelSheetValidationSchema, getCompanyAndRElatedJobsValidationSchema, getCompanyWithNameValidationSchema, updateCompanyValidationSchema } from "./company.validation.js";
 import { Router } from "express";
-import offerSubRouter from "./offerModule/offer.router.js"
+import offerRouter from "../offerModule/offer.router.js"
 const router = Router({mergeParams : true});
 
 router.use(auth());
