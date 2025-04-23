@@ -16,11 +16,12 @@ export const addOffer = async(req , res , next)=>{
 
 //get offers    
 export const getOffers = async(req , res , next)=>{
-    const company = req.company;
-    const filter={
-        companyId :company._id
+    let filter = {}
+    if(req.params.companyId)
+         filter={
+        companyId :req.params.companyId
     }
-    const offers = await offerModel.find({companyId :company._id});
+    const offers = await offerModel.find(filter);
     if(!offers.length)
         return next(new Error('no offers found' , {cause : StatusCodes.NOT_FOUND}));
     return res.status(200).json({offers});
@@ -29,8 +30,10 @@ export const getOffers = async(req , res , next)=>{
 
 //get offer by id
 export const getOfferById = async(req , res , next)=>{
-    const {offerId} = req.params;
-    const offer = await offerModel.findOne({_id : offerId , companyId : req.company._id});
+    let filter = {_id : req.params.offerId}
+    if(req.params.companyId)
+        filter["companyId"]= req.params.companyId
+    const offer = await offerModel.findOne(filter);
     if(!offer)
         return next(new Error('offer not found' , {cause : StatusCodes.NOT_FOUND}));
     return res.status(200).json({offer});
