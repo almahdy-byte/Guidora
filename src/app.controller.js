@@ -10,9 +10,10 @@ import userRouter from './modules/userModule/user.router.js';
 import companyRouter from './modules/companyModule/company.router.js';
 import AppError from './utils/errorHandlers/appError.js';
 import globalErrorHandler from './utils/errorHandlers/globalErrorHandler.js';
+import { asyncErrorHandler } from './utils/errorHandlers/asyncErrorHandler.js';
 
 
-export const bootstrap = async (app ,express) => {
+export const bootstrap = asyncErrorHandler(async (app, express) => {
     app.use(express.json());
 
     await DBConnection();
@@ -27,7 +28,7 @@ export const bootstrap = async (app ,express) => {
         skipSuccessfulRequests : true,
         handler:(req, res, next, options) => {
             return next(
-                new Error(options.message , { cause : StatusCodes.TOO_MANY_REQUESTS })
+                new AppError(options.message , { cause : StatusCodes.TOO_MANY_REQUESTS })
             );
          }
 
@@ -42,9 +43,9 @@ export const bootstrap = async (app ,express) => {
     app.use('/user' , userRouter);
     app.use('/company' , companyRouter);
 
-    app.all('*', (req, res, next) =>
+    app.all('*', (req, res, next) => 
         next( new AppError(`Can't found ${req.originalUrl} on this server`, StatusCodes.NOT_FOUND) )
     );
     
     app.use(globalErrorHandler);
-}
+});

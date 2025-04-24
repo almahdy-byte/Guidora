@@ -5,6 +5,7 @@ const handleCastErrorDB = (error) => {
     const message = `Invalid ${error.path}: ${error.value}.`;
     return new AppError(message, StatusCodes.BAD_REQUEST);
 }
+
 const handleValidationErrorDB = (error) => {
     const errorsMessages = Object.values(error.errors).map(err => err).join(', ');
     return new AppError(errorsMessages, StatusCodes.BAD_REQUEST);
@@ -52,11 +53,12 @@ const sendProdError = (res, err) => {
 };
 
 export default (err, req, res, next) => {
+
     // Set default values if not already set
     err.statusCode ??= StatusCodes.INTERNAL_SERVER_ERROR;
     err.status ??= 'error';
 
-    
+     console.log(process.env.NODE_ENV)
     // Check environment and send appropriate error response
     if (process.env.NODE_ENV === 'development') {
         sendDevError(res, err);
