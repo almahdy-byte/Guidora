@@ -5,30 +5,32 @@ import { asyncErrorHandler } from "../utils/errorHandlers/asyncErrorHandler.js";
 import { Types } from "mongoose";
 import AppError from "../utils/errorHandlers/appError.js";
 
-export const validation = (schema)=>{
-    return (req,res,next)=>{
+export const validation = schema => {
+    return (req, res, next) => {
         const data = {
             ...req.body,
-            ...req.params,
-            ...req.query    
+            ...req.query,    
+            ...req.params
         }
         
         const result = schema.validate(data);
-        let errors = [];
-        if(result.error){
-            errors.push(result.error.details[0].message)
-            return next(new AppError(errors, StatusCodes.BAD_REQUEST))  
+        const errors = [];
+
+        if (result.error){
+            errors.push(result.error.details[0].message);
+            return next( new AppError(errors, StatusCodes.BAD_REQUEST) );
         }
+
         next();
-}
-}
+    }
+};
 
 
 
 
 
 
-const idValidation =(id)=>{
+const idValidation = id => {
     return Types.ObjectId.isValid(id) ? true : helper.message = "Invalid ID";
 }
 

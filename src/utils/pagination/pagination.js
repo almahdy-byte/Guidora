@@ -1,6 +1,7 @@
-export const pagination = (page , size)=>{
-    page = page <= 0 ?  1 : page ;
-    const limit = size <= 0 ?  1 : size ;
+export const pagination = (page, size) => {
+    page = Math.max(page, 1);
+    const limit = Math.max(size, 1);
     const skip = size * (page - 1);
-    return { skip , limit};
+
+    return { skip, limit };
 }

@@ -198,11 +198,14 @@ export const softDelete = async(req , res , next)=>{
         return next(new AppError('user not found' , StatusCodes.NOT_FOUND));
 
     // update target user Info
-    targetUser.isDeleted = true ;;
-    targetUser.deletedAt = Date.now();
+    targetUser.isDeleted = true;
     targetUser.deletedBy = user._id;
+    targetUser.deletedAt = Date.now();
     
     await targetUser.save();
 
-    return res.status(StatusCodes.ACCEPTED).json({success : true , user : targetUser})
+    return res.status(StatusCodes.ACCEPTED).json({ 
+        success: true, 
+        user: targetUser 
+    });
 }

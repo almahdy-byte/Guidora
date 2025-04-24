@@ -4,14 +4,13 @@ import { asyncErrorHandler } from "../utils/errorHandlers/asyncErrorHandler.js"
 import AppError from "../utils/errorHandlers/appError.js";
 
 export const getCompanyById = asyncErrorHandler(async (req , res , next) => {
-    const {companyId} = req.params;
-
     const company = await companyModel.findOne({
-        _id:companyId , deletedAt:null , bannedAt : null
-    })
+        _id: req.params.companyId, 
+        deletedAt: null, 
+        bannedAt: null
+    });
 
-    if(!company)
-        return  next(new AppError('company not found' , StatusCodes.NOT_FOUND));
+    if(!company) return next( new AppError('company not found', StatusCodes.NOT_FOUND) );
 
     req.company = company;
 

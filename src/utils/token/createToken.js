@@ -1,10 +1,11 @@
 
 import { Roles } from "../globalEnums/enums.js";
-import { sign } from "./sign.js"
+import { sign } from "./sign.js";
 
-export const createToken =async (role = Roles.USER , payload = {})=>{
-    let accessSignature
-    let refreshSignature
+export const createToken = async (role = Roles.USER, payload = {}) => {
+    let accessSignature;
+    let refreshSignature;
+
     switch (role) {
         case Roles.USER:
             accessSignature = process.env.USER_ACCESS_TOKEN;
@@ -17,10 +18,9 @@ export const createToken =async (role = Roles.USER , payload = {})=>{
         default:
             break;
     }    
-    let accessToken =await sign(payload , accessSignature , '30m');
-    let refreshToken =await sign(payload , refreshSignature , '1w');
-    return {
-        accessToken ,
-        refreshToken
-    }
+
+    let accessToken = await sign(payload , accessSignature , '30m');
+    let refreshToken = await sign(payload , refreshSignature , '1w');
+
+    return { accessToken, refreshToken };
 }

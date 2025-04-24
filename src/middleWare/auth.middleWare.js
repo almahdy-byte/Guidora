@@ -9,13 +9,12 @@ export const auth = () => {
         const authorization = req.headers['authorization'];
         const decodedData = await decodeToken(authorization, tokenTypes.ACCESS, next);
 
-        if (!decodedData || !decodedData.user) {
-            return next(new AppError("Invalid refresh token", StatusCodes.UNAUTHORIZED));
-        }
+        if (!decodedData || !decodedData.user)
+            return next( new AppError("Invalid refresh token", StatusCodes.UNAUTHORIZED) );
 
         const { user } = decodedData;
 
-        if (!user) throw new AppError('user not found', StatusCodes.NOT_FOUND);
+        if (!user) return new AppError('user not found', StatusCodes.NOT_FOUND);
         
         req.user = user;
         
