@@ -7,6 +7,7 @@ import * as companyServices from './company.controller.js'
 import { companyIdValidationSchema, createCompanyValidationSchema, downloadExcelSheetValidationSchema, getCompanyAndRElatedJobsValidationSchema, getCompanyWithNameValidationSchema, updateCompanyValidationSchema } from "./company.validation.js";
 import { Router } from "express";
 import offerRouter from "../offerModule/offer.router.js"
+import appRouter from "../appModule/app.router.js"
 const router = Router({mergeParams : true});
 
 router.use(auth());
@@ -61,6 +62,7 @@ router.delete('/:companyId' ,
 
 
 router.use('/:companyId/company-offers' , offerRouter);
+router.use('/:companyId/company-apps' , appRouter);
 export default router;
 
 

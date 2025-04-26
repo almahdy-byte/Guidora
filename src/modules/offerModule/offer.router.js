@@ -13,23 +13,23 @@ router.route('/')
         asyncErrorHandler(offerServices.getOffers)
     )
     .post(
-        getCompanyById(),
+        getCompanyById,
         asyncErrorHandler(offerServices.addOffer)
-)
+    )
 router.route('/:offerId')
     .get(
         asyncErrorHandler(offerServices.getOfferById)
     )
     .put(
-        getCompanyById(),
+        getCompanyById,
         asyncErrorHandler(offerServices.updateOffer)
     )
     .delete(
-        getCompanyById(),
+        getCompanyById,
         asyncErrorHandler(offerServices.deleteOffer)
     )
     .patch(
-        getCompanyById(),
+        getCompanyById,
         asyncErrorHandler(offerServices.softDeleteOffer)
     )   
 

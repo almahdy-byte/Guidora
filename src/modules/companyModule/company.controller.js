@@ -8,6 +8,7 @@ import path from "path";
 import fs from 'fs'
 import { fileURLToPath } from "url";
 import { checkAccess } from "./helper/checkAccess.js";
+import AppError from "../../utils/errorHandlers/appError.js";
 
 // add company  
 export const addCompany = async(req , res , next)=>{
@@ -18,13 +19,13 @@ export const addCompany = async(req , res , next)=>{
     });
     // check if the company email already exists
     if(isExist)
-        return next(new Error('company Email already exist' , {cause : StatusCodes.BAD_REQUEST}));
+        return next(new AppError('company Email already exist' , StatusCodes.BAD_REQUEST));
     isExist = await companyModel.findOne({
         companyName
         });
     // check if the company name already exists
     if(isExist)
-        return next(new Error('company name already used' , {cause : StatusCodes.BAD_REQUEST}));
+        return next(new AppError('company name already used' , StatusCodes.BAD_REQUEST));
     // update user isOwner to true
     user.isOwner = true;
     if(Array.isArray(HRs) && HRs.length){
@@ -34,7 +35,7 @@ export const addCompany = async(req , res , next)=>{
             })
             // check if the HR account is not found
             if(!findHR)
-                return next(new Error('HR account not found' , {cause : StatusCodes.NOT_FOUND}))
+                return next(new AppError('HR account not found' , StatusCodes.NOT_FOUND))
             // update HR isHr to true
             findHR.isHr = true;
             // save HR
@@ -62,13 +63,13 @@ export const updateCompany =async(req , res , next)=>{
     })
     // check if the target company is not found
     if(!company)
-        return next(new Error('company not found' , {cause : StatusCodes.NOT_FOUND}));
+        return next(new AppError('company not found' , StatusCodes.NOT_FOUND));
     // check if the user is not allowed to update the target company
     if(company.createdBy.toString() !== user._id.toString())
-        return next(new Error('you are not allowed to update this company information' , {cause: StatusCodes.BAD_REQUEST}));
+        return next(new AppError('you are not allowed to update this company information' , {cause: StatusCodes.BAD_REQUEST}));
     // check if the legal attachment is not allowed to be updated
     if(req.body.legalAttachment){
-        return next(new Error('legal attachment can not be updated' , {cause: StatusCodes.BAD_REQUEST}));
+        return next(new AppError('legal attachment can not be updated' , {cause: StatusCodes.BAD_REQUEST}));
     }
     // update company address
     company.address = req.body.address || company.address;
@@ -87,10 +88,10 @@ export const updateCompany =async(req , res , next)=>{
             })
             // check if the HR account is not found
             if(!findHR)
-                return next(new Error('HR account not found' , {cause : StatusCodes.NOT_FOUND}))
+                return next(new AppError('HR account not found' , StatusCodes.NOT_FOUND))
             // check if the HR works in the target company
             if(companyHRs.find(e=> e === HR.toString()))
-                return next(new Error('HR works in your company' , {cause : StatusCodes.NOT_FOUND}))
+                return next(new AppError('HR works in your company' , StatusCodes.NOT_FOUND))
             // update HR isHr to true
             findHR.isHr = true;
             // save HR
@@ -104,7 +105,7 @@ export const updateCompany =async(req , res , next)=>{
         });
         // check if the company email already exists
         if(isExist)
-            return next(new Error('company Email already exist' , {cause : StatusCodes.BAD_REQUEST}));
+            return next(new AppError('company Email already exist' , StatusCodes.BAD_REQUEST));
         // update company email
         company.companyEmail = req.body.companyEmail
     }
@@ -116,7 +117,7 @@ export const updateCompany =async(req , res , next)=>{
         });
         // check if the company name already exists
         if(isExist)
-            return next(new Error('company name already exist' , {cause : StatusCodes.BAD_REQUEST}));
+            return next(new AppError('company name already exist' , StatusCodes.BAD_REQUEST));
         // update company name
         company.companyName = req.body.companyName
     }
@@ -129,7 +130,7 @@ export const updateCompany =async(req , res , next)=>{
         });
         // check if the target user is not found
         if(!targetUser)
-            return next(new Error('user not found' , {cause : StatusCodes.NOT_FOUND}));
+            return next(new AppError('user not found' , StatusCodes.NOT_FOUND));
         // update company createdBy
         company.createdBy = targetUser._id
     }
@@ -145,7 +146,7 @@ export const getCompanyWithName = async(req , res ,next)=>{
         companyName
     })
     if(!company)
-        return next(new Error('company not found ' , {cause : StatusCodes.NOT_FOUND}));
+        return next(new AppError('company not found ' , StatusCodes.NOT_FOUND));
     return res.status(StatusCodes.ACCEPTED).json({success:true , company})
 }
 
@@ -156,7 +157,7 @@ export const getCompanyAndRelatedJobs = async(req , res , next)=>{
         _id : companyId , deletedAt : null , bannedAt : null
     }).populate('offers')
     if(!company)
-        return next(new Error('company not found' , {cause : StatusCodes.NOT_FOUND}));
+        return next(new AppError('company not found' , StatusCodes.NOT_FOUND));
     company.populate({
         path:'offers'
     })
@@ -170,7 +171,7 @@ const file = req.file
 const user = req.user   
 // check if the image is required
 if (!file) {
-    return next(new Error('image is required', { cause: StatusCodes.BAD_REQUEST }));
+    return next(new AppError('image is required', { cause: StatusCodes.BAD_REQUEST }));
 }
 const {companyId} = req.params
 // check if the target company is not found
@@ -179,10 +180,10 @@ const company = await companyModel.findOne({
 })
 // check if the target company is not found
 if(!company)
-    return next(new Error('company not found ' , {cause : StatusCodes.NOT_FOUND}));
+    return next(new AppError('company not found ' , StatusCodes.NOT_FOUND));
 // check if the user is not allowed to edit the target company logo
 if(user._id.toString() !== company.createdBy.toString())
-    return next(new Error('you not allowed to edit this company logo' , {cause : StatusCodes.BAD_REQUEST}));
+    return next(new AppError('you not allowed to edit this company logo' , StatusCodes.BAD_REQUEST));
 // upload logo to cloudinary
 const{secure_url , public_id} = await cloudinary.uploader.upload(file.path , {
     folder : `companies/company/${company.companyName}/logo`
@@ -203,7 +204,7 @@ export const uploadCovePic = async(req , res ,next)=>{
     const user = req.user
     // check if the image is required
     if (!file) {
-        return next(new Error('image is required', { cause: StatusCodes.BAD_REQUEST }));
+        return next(new AppError('image is required', { cause: StatusCodes.BAD_REQUEST }));
     }
     const {companyId} = req.params
     const company = await companyModel.findOne({
@@ -211,10 +212,10 @@ export const uploadCovePic = async(req , res ,next)=>{
     })
     // check if the target company is not found
     if(!company)
-        return next(new Error('company not found ' , {cause : StatusCodes.NOT_FOUND}));
+        return next(new AppError('company not found ' , StatusCodes.NOT_FOUND));
     // check if the user is not allowed to edit the target company cover picture
     if(user._id.toString()!==company.createdBy.toString())
-        return next(new Error('you not allowed to edit this company cover picture' , {cause : StatusCodes.BAD_REQUEST}));
+        return next(new AppError('you not allowed to edit this company cover picture' , StatusCodes.BAD_REQUEST));
     // upload cover picture to cloudinary
     const{secure_url , public_id} = await cloudinary.uploader.upload(file.path , {
         folder : `companies/company/${company.companyName}/coverPic`
@@ -238,13 +239,13 @@ export const deleteLogo = async(req , res ,next)=>{
     })
     // check if the target company is not found
     if(!company)
-        return next(new Error('company not found ' , {cause : StatusCodes.NOT_FOUND}));
+        return next(new AppError('company not found ' , StatusCodes.NOT_FOUND));
     // check if the user is not allowed to edit the target company logo
     if(user._id.toString()!==company.createdBy.toString())
-        return next(new Error('you not allowed to edit this company cover picture' , {cause : StatusCodes.BAD_REQUEST}));
+        return next(new AppError('you not allowed to edit this company cover picture' , StatusCodes.BAD_REQUEST));
     // check if the target company logo is not found
     if(!Object.values(company.logo).length) 
-        return next(new Error('profile picture not found' ,{cause:StatusCodes.NOT_FOUND}));
+        return next(new AppError('profile picture not found' ,{cause:StatusCodes.NOT_FOUND}));
     // delete logo from cloudinary      
     await cloudinary.uploader.destroy(company.logo.public_id);
     // update company logo
@@ -266,13 +267,13 @@ export const deleteCoverPic = async(req , res ,next)=>{
     })
     // check if the target company is not found
     if(!company)
-        return next(new Error('company not found ' , {cause : StatusCodes.NOT_FOUND}));
+        return next(new AppError('company not found ' , StatusCodes.NOT_FOUND));
     // check if the user is not allowed to edit the target company cover picture
     if(user._id.toString()!==company.createdBy.toString())
-        return next(new Error('you not allowed to edit this company cover picture' , {cause : StatusCodes.BAD_REQUEST}));
+        return next(new AppError('you not allowed to edit this company cover picture' , StatusCodes.BAD_REQUEST));
     // check if the target company cover picture is not found
     if(!Object.values(company.coverPic).length) 
-        return next(new Error('profile picture not found' ,{cause:StatusCodes.NOT_FOUND}));
+        return next(new AppError('profile picture not found' ,{cause:StatusCodes.NOT_FOUND}));
     // delete cover picture from cloudinary     
     await cloudinary.uploader.destroy(company.coverPic.public_id);
     // update company cover picture
@@ -353,9 +354,9 @@ export const saveAppToExcelSheet = async(req , res , next)=>{
         }
     ])
     if(!company)
-        return next(new Error('company not found' , {cause: StatusCodes.NOT_FOUND}))
+        return next(new AppError('company not found' , {cause: StatusCodes.NOT_FOUND}))
     if(!checkAccess(user , company))
-        return next(new Error('you are not allowed to access this end point' , {cause: StatusCodes.BAD_REQUEST}))
+        return next(new AppError('you are not allowed to access this end point' , {cause: StatusCodes.BAD_REQUEST}))
     let applications = [];
     const offers = company.offers;
     for (const offer of offers) {
@@ -363,7 +364,7 @@ export const saveAppToExcelSheet = async(req , res , next)=>{
     }
     applications.filter(app => app.createdAt.toISOString() === date.toISOString())
     if (!applications.length) {
-        return next(new Error( "No applications found for this company in this day" , {cause:StatusCodes.NOT_FOUND}));
+        return next(new AppError( "No applications found for this company in this day" , {cause:StatusCodes.NOT_FOUND}));
     }
 
     const workbook = new ExcelJs.Workbook();

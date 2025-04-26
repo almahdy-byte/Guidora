@@ -8,12 +8,12 @@ import { DBConnection } from './DB/connection.js';
 import authRouter from './modules/authModule/auth.router.js';
 import userRouter from './modules/userModule/user.router.js';
 import companyRouter from './modules/companyModule/company.router.js';
-import offerRouter from './modules/offerModule/offer.router.js';
-import { globalErrorHandler } from './utils/errorHandlers/globalErrorHandler.js';
-
-export const bootstrap = async (app ,express) => {
+import appRouter from "./modules/appModule/app.router.js"
+import offerRouter from './modules/offerModule/offer.router.js'
+import { asyncErrorHandler } from './utils/errorHandlers/asyncErrorHandler.js';
+import {globalErrorHandler} from './utils/errorHandlers/globalErrorHandler.js';
+export const bootstrap = asyncErrorHandler(async (app, express) => {
     app.use(express.json());
-
     await DBConnection();
 
     app.use(cors({
@@ -26,7 +26,7 @@ export const bootstrap = async (app ,express) => {
         skipSuccessfulRequests : true,
         handler:(req, res, next, options) => {
             return next(
-                new Error(options.message , { cause : StatusCodes.TOO_MANY_REQUESTS })
+                new AppError(options.message , { cause : StatusCodes.TOO_MANY_REQUESTS })
             );
          }
 
@@ -40,9 +40,8 @@ export const bootstrap = async (app ,express) => {
     app.use('/auth' , authRouter);
     app.use('/user' , userRouter);
     app.use('/company' , companyRouter);
-    app.use('/offer' , offerRouter);
-    app.use('/*' , (req , res , next)=>{
-        return next(new Error('page not found' , {cause : StatusCodes.NOT_FOUND}))
-    });
-    app.use(globalErrorHandler);
+    app.use('/offer' , offerRouter)
+    app.use('/app' , appRouter);
+    app.use(globalErrorHandler)
 }
+)

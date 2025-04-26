@@ -1,3 +1,5 @@
+
+
 export const Roles = {
     USER : 'user',
     ADMIN : 'admin',
@@ -35,6 +37,8 @@ export const subjects={
     RESET_PASSWORD:"Reset Password",
     ACCEPT_APP :'ACCEPTED',
     REJECT_APP :'REJECTED',
+    SEND_APP:'new application',
+    CANCEL_APP :'cancel app'
 }
 Object.freeze(subjects);
 
@@ -45,17 +49,11 @@ export const FileType={
 }
 Object.freeze(FileType)
 
-export const JobLocation = {
-    ONSITE :'onsite',
-    REMOTELY:'remotely',
-    HYBRID:'hybrid'
+export const AppStatus={
+    Pending :'pending',
+    ACCEPTED:'accepted',
+    REJECTED:'rejected',
+    CANCELED : 'canceled'
 }
 
-Object.freeze(JobLocation)
-
-export const WorkingTime = {
-    PART_TIME:'half-time',
-    FULL_TIME :'full-time'
-}
-
-Object.freeze(WorkingTime)
+Object.freeze(AppStatus)
