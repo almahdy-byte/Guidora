@@ -57,3 +57,19 @@ export const AppStatus={
 }
 
 Object.freeze(AppStatus)
+
+export const PlaceCategory = {
+    PHARONIC: 'pharonic',
+    ISLAMIC: 'islamic',
+    COPTIC: 'coptic',
+    MODERN: 'modern',
+    NATURAL: 'natural',
+    BEACH: 'beach',
+    DESERT: 'desert',
+    CULTURAL: 'cultural',
+    ENTERTAINMENT: 'entertainment',
+    THERAPEUTIC: 'therapeutic', // للأماكن العلاجية زي سيوة
+  };
+  
+  Object.freeze(PlaceCategory);
+  
