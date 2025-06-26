@@ -44,14 +44,15 @@ export const getUser = async(req , res ,next)=>{
     const { userId } = req.params;
 
     // check if the userId is not found
-    if(!userId) return next(new AppError('userId not found' , StatusCodes.NOT_FOUND));
+    if(!userId)
+        return next(new AppError('userId not found' , StatusCodes.NOT_FOUND));
 
     let user;
 
     // check if the user is the same user
     if(userId.toString() === req.user._id.toString()){
         user = req.user;
-    } else {
+    }else {
         user = await userModel.findOne({
             _id : userId , isConfirmed:true , deletedAt:null , isDeleted : false
         });
@@ -139,7 +140,7 @@ export const uploadCovePic = async(req , res ,next)=>{
 // delete profile picture
 export const deleteProfilePic = async(req , res ,next)=>{
     const user = req.user;
-    
+
     // check if the profile picture is not found
     if(!Object.values(user.profilePic).length)
          return next(new AppError('profile picture not found' ,StatusCodes.NOT_FOUND));
